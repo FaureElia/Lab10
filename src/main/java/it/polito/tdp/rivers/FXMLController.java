@@ -5,9 +5,12 @@
 package it.polito.tdp.rivers;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
+import it.polito.tdp.rivers.model.River;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,7 +28,7 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxRiver"
-    private ComboBox<?> boxRiver; // Value injected by FXMLLoader
+    private ComboBox<River> boxRiver; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtStartDate"
     private TextField txtStartDate; // Value injected by FXMLLoader
@@ -47,6 +50,41 @@ public class FXMLController {
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
+    
+    @FXML
+    void compila(ActionEvent event) {
+    	River r=this.boxRiver.getValue();
+    	if(r==null) {
+    		this.txtResult.setText("inserire un fiume");
+    		return;
+    	}
+    	LocalDate dataInizio=this.model.getInizio(r);
+    	LocalDate dataFine=this.model.getFine(r);
+    	int misurazioni=this.model.getNumeroMisurazioni(r);
+    	double flussoMedio=this.model.getFlussoMedio(r);
+    	
+    	this.txtFMed.setText(flussoMedio+" ");
+    	this.txtEndDate.setText(dataFine.toString());
+    	this.txtStartDate.setText(dataInizio.toString());
+    	this.txtNumMeasurements.setText(""+misurazioni);
+
+    }
+    
+    @FXML
+    void simula(ActionEvent event) {
+    	River r =this.boxRiver.getValue();
+    	String kS=this.txtK.getText();
+    	try {
+    		double k=Double.parseDouble(kS);
+    		this.model.simula(r,k);
+    	
+    		
+    	}catch(NumberFormatException e) {
+    		this.txtResult.setText("inserire un valore numerico");
+    	}
+
+    }
+
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -62,5 +100,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxRiver.getItems().addAll(model.getRivers());
     }
 }
